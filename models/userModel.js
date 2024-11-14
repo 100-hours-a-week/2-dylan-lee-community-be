@@ -14,6 +14,19 @@ const getUsers = async () => {
     }
 };
 
+// 사용자 데이터를 추가하는 함수
+const addUser = async (user) => {
+    try {
+        const users = await getUsers();
+        users.push(user);
+        await fs.writeFile(usersDataPath, JSON.stringify(users, null, 2));
+    } catch (error) {
+        console.error('JSON 파일 쓰기 오류:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     getUsers,
+    addUser,
 };
