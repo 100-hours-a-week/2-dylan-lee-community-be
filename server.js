@@ -29,9 +29,14 @@ app.use(
 );
 
 // 라우터 등록
-app.use('/api/v1/users', userRoutes); // 사용자 관련 API
-app.use('/api/v1/posts', postRoutes); // 게시물 관련 API
+// 서브 라우터
+const apiRouter = express.Router();
+apiRouter.use('/users', userRoutes); // 사용자 관련 API
+apiRouter.use('/posts', postRoutes); // 게시물 관련 API
 // app.use('/', express.static('frontend/pages')); // 프론트엔드 페이지
+
+// 메인 라우터
+app.use('/api/v1', apiRouter);
 
 // 서버 실행
 app.listen(PORT, () => {
