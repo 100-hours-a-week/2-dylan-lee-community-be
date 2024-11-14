@@ -16,6 +16,7 @@ const getUsers = async () => {
 
 // 사용자 데이터를 추가하는 함수
 const addUser = async (user) => {
+    // TODO: 사용자 데이터 검증 로직
     try {
         const users = await getUsers();
         users.push(user);
