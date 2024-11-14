@@ -19,13 +19,20 @@ const getUsers = async (req, res) => {
 // 사용자 추가
 const addUser = async (req, res) => {
     const { email, nickname, password, profileImagePath } = req.body;
+
+    // 입력 데이터 검증
+    if (!email || !nickname || !password) {
+        res.status(400).json({ message: '필수 입력 항목이 누락되었습니다.' });
+        return;
+    }
+
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = {
             email,
             nickname,
             password: hashedPassword,
-            profileImagePath,
+            profileImagePath: profileImagePath || null,
         };
 
         await userModel.addUser(user);
@@ -34,7 +41,7 @@ const addUser = async (req, res) => {
         console.error('사용자 등록 오류:', err);
         res.status(500).json({
             message: ERROR_MESSAGES.REGISTER_USER,
-            error: err,
+            error: err.message,
         });
     }
 };
