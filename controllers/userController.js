@@ -35,7 +35,14 @@ const addUser = async (req, res) => {
             profileImagePath: profileImagePath || null,
         };
 
-        await userModel.addUser(user);
+        const newUser = await userModel.addUser(user);
+
+        req.session.user = {
+            id: newUser.id,
+            email: newUser.email,
+            nickname: newUser.nickname,
+        };
+
         res.status(201).json({ message: '사용자 등록 성공' });
     } catch (err) {
         console.error('사용자 등록 오류:', err);
