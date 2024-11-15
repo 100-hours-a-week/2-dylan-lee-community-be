@@ -10,8 +10,7 @@ const getUsers = async (req, res) => {
     } catch (err) {
         console.error('사용자 목록 조회 오류:', err);
         res.status(500).json({
-            message: ERROR_MESSAGES.FETCH_USERS,
-            error: err,
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         });
     }
 };
@@ -47,8 +46,7 @@ const addUser = async (req, res) => {
     } catch (err) {
         console.error('사용자 등록 오류:', err);
         res.status(500).json({
-            message: ERROR_MESSAGES.REGISTER_USER,
-            error: err.message,
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         });
     }
 };
@@ -90,8 +88,7 @@ const loginUser = async (req, res) => {
     } catch (err) {
         console.error('로그인 오류:', err);
         res.status(500).json({
-            message: ERROR_MESSAGES.LOGIN_USER,
-            error: err.message,
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         });
     }
 };
