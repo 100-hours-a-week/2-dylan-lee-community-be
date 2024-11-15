@@ -72,7 +72,7 @@ const loginUser = async (req, res) => {
             return;
         }
 
-        // 세션 설정
+        // 세션 사용자 설정
         req.session.user = {
             id: user.id,
             email: user.email,
