@@ -93,8 +93,24 @@ const loginUser = async (req, res) => {
     }
 };
 
+const logoutUser = (req, res) => {
+    // 세션 무효화
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('로그아웃 오류:', err);
+            res.status(500).json({
+                message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+            });
+            return;
+        }
+        res.clearCookie('connect.sid'); // 클라이언트 측 세션 쿠키 삭제
+        res.status(200).json({ message: '로그아웃 성공' });
+    });
+};
+
 module.exports = {
     getUsers,
     addUser,
     loginUser,
+    logoutUser,
 };
