@@ -19,7 +19,13 @@ const addUser = async (user) => {
     // TODO: 사용자 데이터 검증 로직
     try {
         const users = await getUsers();
-        users.push(user);
+        const timestamp = new Date().toISOString();
+        const newUser = {
+            ...user,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+        };
+        users.push(newUser);
         await fs.writeFile(usersDataPath, JSON.stringify(users, null, 2));
     } catch (error) {
         console.error('JSON 파일 쓰기 오류:', error);
