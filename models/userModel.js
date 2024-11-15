@@ -33,7 +33,19 @@ const addUser = async (user) => {
     }
 };
 
+// 이메일로 사용자 데이터를 가져오는 함수
+const getUserByEmail = async (email) => {
+    try {
+        const users = await getUsers();
+        return users.find((user) => user.email === email);
+    } catch (error) {
+        console.error('사용자 데이터 조회 오류:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     getUsers,
     addUser,
+    getUserByEmail,
 };

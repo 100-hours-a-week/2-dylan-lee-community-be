@@ -46,7 +46,51 @@ const addUser = async (req, res) => {
     }
 };
 
+// 사용자 로그인
+const loginUser = async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        res.status(400).json({ message: '필수 입력 항목 누락' });
+        return;
+    }
+
+    try {
+        const user = await userModel.getUserByEmail(email);
+        if (!user) {
+            res.status(401).json({
+                meesage: ERROR_MESSAGES.INVALID_CREDENTIALS,
+            });
+            return;
+        }
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
+            res.status(401).json({
+                message: ERROR_MESSAGES.INVALID_CREDENTIALS,
+            });
+            return;
+        }
+
+        // 세션 설정
+        req.session.user = {
+            id: user.id,
+            email: user.email,
+            nickname: user.nickname,
+        };
+
+        res.status(200).json({ message: '로그인 성공' });
+    } catch (err) {
+        console.error('로그인 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.LOGIN_USER,
+            error: err.message,
+        });
+    }
+};
+
 module.exports = {
     getUsers,
     addUser,
+    loginUser,
 };
