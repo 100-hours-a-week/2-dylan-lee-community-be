@@ -93,6 +93,7 @@ const loginUser = async (req, res) => {
     }
 };
 
+// 사용자 로그아웃
 const logoutUser = (req, res) => {
     // 세션 무효화
     req.session.destroy((err) => {
@@ -108,9 +109,51 @@ const logoutUser = (req, res) => {
     });
 };
 
+// 패스워드 재설정
+const resetPassword = async (req, res) => {
+    const { password } = req.body;
+
+    // 세션에서 사용자 정보 가져오기
+    const { user } = req.session;
+
+    if (!user) {
+        res.status(401).json({ message: '로그인이 필요합니다.' });
+        return;
+    }
+
+    if (!password) {
+        res.status(400).json({ message: '필수 입력 항목 누락' });
+        return;
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await userModel.updateUserPassword(user.email, hashedPassword);
+
+        // 세션 무효화
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('세션 무효화 오류:', err);
+                res.status(500).json({
+                    message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+                });
+                return;
+            }
+            res.clearCookie('connect.sid'); // 클라이언트 측 세션 쿠키 삭제
+        });
+        res.status(200).json({ message: '패스워드 재설정 성공' });
+    } catch (err) {
+        console.error('패스워드 재설정 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
 module.exports = {
     getUsers,
     addUser,
     loginUser,
     logoutUser,
+    resetPassword,
 };
