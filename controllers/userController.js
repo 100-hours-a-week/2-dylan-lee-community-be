@@ -116,6 +116,37 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// 사용자 삭제
+const deleteProfile = async (req, res) => {
+    const { user } = req.session;
+
+    if (!user) {
+        res.status(401).json({ message: '로그인이 필요합니다.' });
+        return;
+    }
+
+    try {
+        await userModel.deleteUserById(user.id);
+
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('세션 무효화 오류:', err);
+                res.status(500).json({
+                    message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+                });
+                return;
+            }
+            res.clearCookie('connect.sid'); // 클라이언트 측 세션 쿠키 삭제
+            res.status(200).json({ message: '사용자 삭제 성공' });
+        });
+    } catch (err) {
+        console.error('사용자 삭제 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
 // 사용자 로그인
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -172,37 +203,6 @@ const logoutUser = (req, res) => {
         res.clearCookie('connect.sid'); // 클라이언트 측 세션 쿠키 삭제
         res.status(200).json({ message: '로그아웃 성공' });
     });
-};
-
-// 사용자 삭제
-const deleteProfile = async (req, res) => {
-    const { user } = req.session;
-
-    if (!user) {
-        res.status(401).json({ message: '로그인이 필요합니다.' });
-        return;
-    }
-
-    try {
-        await userModel.deleteUserById(user.id);
-
-        req.session.destroy((err) => {
-            if (err) {
-                console.error('세션 무효화 오류:', err);
-                res.status(500).json({
-                    message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-                });
-                return;
-            }
-            res.clearCookie('connect.sid'); // 클라이언트 측 세션 쿠키 삭제
-            res.status(200).json({ message: '사용자 삭제 성공' });
-        });
-    } catch (err) {
-        console.error('사용자 삭제 오류:', err);
-        res.status(500).json({
-            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        });
-    }
 };
 
 // 패스워드 재설정
