@@ -20,10 +20,13 @@ const getUsers = async () => {
 // 필수 데이터 중복 확인 함수
 const isDuplicateUser = async (email, nickname, targetId = null) => {
     const users = await getUsers();
-    const emailExists = users.some(
-        (u) => u.email === email && u.id !== targetId
-    );
-    const nicknameExists = users.some(
+    let emailExists = false;
+    let nicknameExists = false;
+    if (!email) {
+        emailExists = users.some((u) => u.email === email && u.id !== targetId);
+    }
+
+    nicknameExists = users.some(
         (u) => u.nickname === nickname && u.id !== targetId
     );
     return { emailExists, nicknameExists };
@@ -90,9 +93,54 @@ const updateUserPassword = async (email, hashedPassword) => {
     }
 };
 
+// 사용자 프로필을 업데이트하는 함수
+const updateUserProfile = async (id, updatedData) => {
+    try {
+        const { nicknameExists } = await isDuplicateUser(
+            null,
+            updatedData.nickname,
+            id
+        );
+        if (nicknameExists) {
+            throw new Error('이미 사용 중인 닉네임입니다.');
+        }
+
+        const users = await getUsers();
+        const user = users.find((u) => u.id === id);
+        if (!user) {
+            throw new Error('사용자를 찾을 수 없습니다.');
+        }
+        user.nickname = updatedData.nickname;
+        user.profileImagePath = updatedData.profileImagePath;
+        user.updatedAt = new Date().toISOString();
+        await fs.writeFile(usersDataPath, JSON.stringify(users, null, 2));
+        return user;
+    } catch (error) {
+        console.error('프로필 업데이트 오류:', error);
+        throw error;
+    }
+};
+
+const deleteUserById = async (id) => {
+    try {
+        const users = await getUsers();
+        const userIndex = users.findIndex((u) => u.id === id);
+        if (userIndex === -1) {
+            throw new Error('사용자를 찾을 수 없습니다.');
+        }
+        users.splice(userIndex, 1);
+        await fs.writeFile(usersDataPath, JSON.stringify(users, null, 2));
+    } catch (error) {
+        console.error('사용자 삭제 오류:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     getUsers,
     addUser,
     getUserByEmail,
     updateUserPassword,
+    updateUserProfile,
+    deleteUserById,
 };
