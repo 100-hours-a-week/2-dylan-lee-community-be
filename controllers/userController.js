@@ -51,6 +51,102 @@ const addUser = async (req, res) => {
     }
 };
 
+const getProfile = async (req, res) => {
+    const { user } = req.session;
+
+    if (!user) {
+        res.status(401).json({ message: '로그인이 필요합니다.' });
+        return;
+    }
+
+    try {
+        const userProfile = await userModel.getUserByEmail(user.email);
+        res.status(200).json(userProfile);
+    } catch (err) {
+        console.error('프로필 조회 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
+const updateProfile = async (req, res) => {
+    const { user } = req.session;
+    const { nickname, profileImagePath } = req.body;
+
+    if (!user) {
+        res.status(401).json({ message: '로그인이 필요합니다.' });
+        return;
+    }
+
+    if (!nickname || !profileImagePath) {
+        res.status(400).json({ message: '입력 항목 누락' });
+        return;
+    }
+
+    try {
+        const updatedUser = await userModel.updateUserProfile(user.id, {
+            nickname,
+            profileImagePath,
+        });
+
+        // 세션 사용자 정보 업데이트
+        req.session.user = {
+            id: updatedUser.id,
+            email: updatedUser.email,
+            nickname: updatedUser.nickname,
+        };
+
+        // 변경된 세션 저장 후 응답
+        req.session.save((err) => {
+            if (err) {
+                console.error('세션 저장 오류:', err);
+                res.status(500).json({
+                    message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+                });
+                return;
+            }
+            res.status(200).json({ message: '프로필 업데이트 성공' });
+        });
+    } catch (err) {
+        console.error('프로필 업데이트 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
+// 사용자 삭제
+const deleteProfile = async (req, res) => {
+    const { user } = req.session;
+
+    if (!user) {
+        res.status(401).json({ message: '로그인이 필요합니다.' });
+        return;
+    }
+
+    try {
+        await userModel.deleteUserById(user.id);
+
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('세션 무효화 오류:', err);
+                res.status(500).json({
+                    message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+                });
+                return;
+            }
+            res.clearCookie('connect.sid'); // 클라이언트 측 세션 쿠키 삭제
+            res.status(200).json({ message: '사용자 삭제 성공' });
+        });
+    } catch (err) {
+        console.error('사용자 삭제 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
 // 사용자 로그인
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -152,8 +248,11 @@ const resetPassword = async (req, res) => {
 
 module.exports = {
     getUsers,
+    getProfile,
+    updateProfile,
     addUser,
     loginUser,
     logoutUser,
+    deleteProfile,
     resetPassword,
 };
