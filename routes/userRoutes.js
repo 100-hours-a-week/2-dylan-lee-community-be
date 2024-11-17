@@ -18,4 +18,7 @@ router.delete('/logout', userController.logoutUser);
 // 패스워드 재설정 라우트
 router.put('/reset-password', userController.resetPassword);
 
+// 현재 사용자 프로필 조회 라우트
+router.get('/me', userController.getProfile);
+
 module.exports = router;

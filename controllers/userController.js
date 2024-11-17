@@ -51,6 +51,25 @@ const addUser = async (req, res) => {
     }
 };
 
+const getProfile = async (req, res) => {
+    const { user } = req.session;
+
+    if (!user) {
+        res.status(401).json({ message: '로그인이 필요합니다.' });
+        return;
+    }
+
+    try {
+        const userProfile = await userModel.getUserByEmail(user.email);
+        res.status(200).json(userProfile);
+    } catch (err) {
+        console.error('프로필 조회 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
 // 사용자 로그인
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -152,6 +171,7 @@ const resetPassword = async (req, res) => {
 
 module.exports = {
     getUsers,
+    getProfile,
     addUser,
     loginUser,
     logoutUser,
