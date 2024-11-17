@@ -17,6 +17,20 @@ const getPosts = async () => {
     }
 };
 
+// 포스트 데이터를 저장하는 함수
+const savePosts = async (posts) => {
+    try {
+        await fs.writeFile(
+            postsDataPath,
+            JSON.stringify(posts, null, 2),
+            'utf-8'
+        );
+    } catch (error) {
+        console.error('JSON 파일 쓰기 오류:', error);
+        throw error;
+    }
+};
+
 // ID로 단일 포스트 조회 함수
 const getPostById = async (id) => {
     try {
@@ -32,6 +46,27 @@ const getPostById = async (id) => {
     }
 };
 
+// 포스트 생성 함수
+const createPost = async (post, userId) => {
+    try {
+        const posts = await getPosts();
+        const newPost = {
+            post_id: posts.length + 1,
+            user_id: userId,
+            ...post,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        posts.push(newPost);
+        await savePosts(posts);
+        return newPost.post_id;
+    } catch (error) {
+        console.error('포스트 생성 오류:', error);
+        throw error;
+    }
+};
+
+// 페이지네이션된 포스트 목록 조회 함수
 const getPaginatedPosts = async (page, limit) => {
     try {
         const posts = await getPosts();
@@ -50,5 +85,6 @@ const getPaginatedPosts = async (page, limit) => {
 
 module.exports = {
     getPostById,
+    createPost,
     getPaginatedPosts,
 };

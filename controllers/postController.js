@@ -48,7 +48,41 @@ const getPaginatedPosts = async (req, res) => {
     }
 };
 
+// 포스트 생성
+const createPost = async (req, res) => {
+    const { title, content } = req.body;
+    const userId = req.session.id;
+
+    console.log(req.session);
+    // 필수 필드 검증
+    if (!title || !content) {
+        res.status(400).json({
+            message: '제목과 내용은 필수 입력 항목입니다.',
+        });
+        return;
+    }
+
+    // 사용자 검증
+    if (!userId) {
+        res.status(401).json({
+            message: '권한이 없습니다.',
+        });
+        return;
+    }
+
+    try {
+        const postId = await postModel.createPost({ title, content }, userId);
+        res.status(201).json({ message: '포스트 작성 완료', post_id: postId });
+    } catch (err) {
+        console.error('포스트 생성 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
 module.exports = {
     getPostById,
     getPaginatedPosts,
+    createPost,
 };
