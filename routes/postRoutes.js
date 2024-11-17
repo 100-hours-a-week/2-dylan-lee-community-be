@@ -1,11 +1,12 @@
 const express = require('express');
-const path = require('path');
+const postController = require('../controllers/postController');
 
 const router = express.Router();
-const pagesDir = path.join(__dirname, '../../frontend/pages');
 
-router.get('/', (req, res) => {
-    res.sendFile(path.join(pagesDir, 'login.html'));
-});
+// 페이지네이션된 포스트 목록 조회 라우트
+router.get('/', postController.getPaginatedPosts);
+
+// ID로 단일 포스트 조회 라우트
+router.get('/:id', postController.getPostById);
 
 module.exports = router;
