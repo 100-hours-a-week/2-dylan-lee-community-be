@@ -42,9 +42,28 @@ const addUser = async (user) => {
 const getUserByEmail = async (email) => {
     try {
         const users = await getUsers();
-        return users.find((user) => user.email === email);
+        const userData = users.find((user) => user.email === email);
+        if (!userData) {
+            throw new Error('사용자를 찾을 수 없습니다.');
+        }
+        return userData;
     } catch (error) {
         console.error('사용자 데이터 조회 오류:', error);
+        throw error;
+    }
+};
+
+const updateUserPassword = async (email, hashedPassword) => {
+    try {
+        const users = await getUsers();
+        const userData = users.find((user) => user.email === email);
+        if (!userData) {
+            throw new Error('사용자를 찾을 수 없습니다.');
+        }
+        userData.password = hashedPassword;
+        await fs.writeFile(usersDataPath, JSON.stringify(users, null, 2));
+    } catch (error) {
+        console.error('패스워드 업데이트 오류:', error);
         throw error;
     }
 };
@@ -53,4 +72,5 @@ module.exports = {
     getUsers,
     addUser,
     getUserByEmail,
+    updateUserPassword,
 };
