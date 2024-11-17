@@ -17,11 +17,32 @@ const getUsers = async () => {
     }
 };
 
+// 필수 데이터 중복 확인 함수
+const isDuplicateUser = async (email, nickname, targetId = null) => {
+    const users = await getUsers();
+    const emailExists = users.some(
+        (u) => u.email === email && u.id !== targetId
+    );
+    const nicknameExists = users.some(
+        (u) => u.nickname === nickname && u.id !== targetId
+    );
+    return { emailExists, nicknameExists };
+};
+
 // 사용자 데이터를 추가하는 함수
 const addUser = async (user) => {
-    // TODO: 사용자 데이터 검증 로직
     try {
-        const users = await getUsers();
+        const { emailExists, nicknameExists } = await isDuplicateUser(
+            user.email,
+            user.nickname
+        );
+        if (emailExists) {
+            throw new Error('이미 사용 중인 이메일입니다.');
+        }
+        if (nicknameExists) {
+            throw new Error('이미 사용 중인 닉네임입니다.');
+        }
+
         const timestamp = new Date().toISOString();
         const newUser = {
             id: uuidv4(),
@@ -29,6 +50,7 @@ const addUser = async (user) => {
             createdAt: timestamp,
             updatedAt: timestamp,
         };
+        const users = await getUsers();
         users.push(newUser);
         await fs.writeFile(usersDataPath, JSON.stringify(users, null, 2));
         return newUser;
