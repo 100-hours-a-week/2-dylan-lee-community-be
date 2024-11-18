@@ -15,4 +15,7 @@ router.get('/:id', postController.getPostById);
 // ID로 포스트 수정 라우트
 router.put('/:id', postController.updatePostById);
 
+// ID로 포스트 삭제 라우트
+router.delete('/:id', postController.deletePostById);
+
 module.exports = router;

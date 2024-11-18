@@ -105,9 +105,27 @@ const updatePostById = async (id, post) => {
     }
 };
 
+// ID로 포스트 삭제 함수
+const deletePostById = async (id) => {
+    try {
+        const posts = await getPosts();
+        const targetIndex = posts.findIndex((p) => p.post_id === Number(id));
+        if (targetIndex === -1) {
+            return null;
+        }
+        const deletedPost = posts.splice(targetIndex, 1)[0];
+        await savePosts(posts);
+        return deletedPost;
+    } catch (error) {
+        console.error('포스트 삭제 오류:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     getPostById,
     createPost,
     getPaginatedPosts,
     updatePostById,
+    deletePostById,
 };

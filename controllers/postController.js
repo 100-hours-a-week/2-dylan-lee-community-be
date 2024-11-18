@@ -121,9 +121,49 @@ const updatePostById = async (req, res) => {
     }
 };
 
+// 포스트 삭제
+const deletePostById = async (req, res) => {
+    const { id } = req.params;
+
+    // 로그인 상태 확인
+    if (!req.session.user) {
+        res.status(401).json({ message: '로그인이 필요합니다.' });
+        return;
+    }
+
+    const userId = req.session.user.user_id;
+
+    try {
+        const post = await postModel.getPostById(id);
+        if (!post) {
+            res.status(404).json({
+                message: '포스트를 찾을 수 없습니다.',
+            });
+            return;
+        }
+
+        // 사용자 검증
+        if (post.user_id !== userId) {
+            res.status(403).json({
+                message: '권한이 없습니다.',
+            });
+            return;
+        }
+
+        await postModel.deletePostById(id);
+        res.status(200).json({ message: '포스트 삭제 완료' });
+    } catch (err) {
+        console.error('포스트 삭제 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
 module.exports = {
     getPostById,
     getPaginatedPosts,
     createPost,
     updatePostById,
+    deletePostById,
 };
