@@ -83,8 +83,31 @@ const getPaginatedPosts = async (page, limit) => {
     }
 };
 
+// ID로 포스트 수정 함수
+const updatePostById = async (id, post) => {
+    try {
+        const posts = await getPosts();
+        const targetIndex = posts.findIndex((p) => p.post_id === Number(id));
+        if (targetIndex === -1) {
+            return null;
+        }
+        const updatedPost = {
+            ...posts[targetIndex],
+            ...post,
+            updated_at: new Date().toISOString(),
+        };
+        posts[targetIndex] = updatedPost;
+        await savePosts(posts);
+        return updatedPost;
+    } catch (error) {
+        console.error('포스트 수정 오류:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     getPostById,
     createPost,
     getPaginatedPosts,
+    updatePostById,
 };

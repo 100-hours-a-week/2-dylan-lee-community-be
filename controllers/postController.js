@@ -51,9 +51,8 @@ const getPaginatedPosts = async (req, res) => {
 // 포스트 생성
 const createPost = async (req, res) => {
     const { title, content } = req.body;
-    const userId = req.session.id;
+    const userId = req.session.user.user_id;
 
-    console.log(req.session);
     // 필수 필드 검증
     if (!title || !content) {
         res.status(400).json({
@@ -81,8 +80,50 @@ const createPost = async (req, res) => {
     }
 };
 
+// 포스트 수정
+const updatePostById = async (req, res) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    const userId = req.session.user.user_id;
+
+    // 필수 필드 검증
+    if (!title || !content) {
+        res.status(400).json({
+            message: '제목과 내용은 필수 입력 항목입니다.',
+        });
+        return;
+    }
+
+    try {
+        const post = await postModel.getPostById(id);
+        if (!post) {
+            res.status(404).json({
+                message: '포스트를 찾을 수 없습니다.',
+            });
+            return;
+        }
+
+        // 사용자 검증
+        if (post.user_id !== userId) {
+            res.status(403).json({
+                message: '권한이 없습니다.',
+            });
+            return;
+        }
+
+        await postModel.updatePostById(id, { title, content });
+        res.status(200).json({ message: '포스트 수정 완료' });
+    } catch (err) {
+        console.error('포스트 수정 오류:', err);
+        res.status(500).json({
+            message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        });
+    }
+};
+
 module.exports = {
     getPostById,
     getPaginatedPosts,
     createPost,
+    updatePostById,
 };

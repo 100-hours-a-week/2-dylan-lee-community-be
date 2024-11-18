@@ -57,7 +57,7 @@ const addUser = async (req, res) => {
         const newUser = await userModel.addUser(user);
 
         req.session.user = {
-            id: newUser.id,
+            id: newUser.user_id,
             email: newUser.email,
             nickname: newUser.nickname,
         };
@@ -187,7 +187,7 @@ const loginUser = async (req, res) => {
 
         // 세션 사용자 설정
         req.session.user = {
-            id: user.id,
+            user_id: user.user_id,
             email: user.email,
             nickname: user.nickname,
         };
