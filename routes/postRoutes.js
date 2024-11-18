@@ -18,4 +18,10 @@ router.put('/:id', postController.updatePostById);
 // ID로 포스트 삭제 라우트
 router.delete('/:id', postController.deletePostById);
 
+// 포스트 메타 정보 조회 라우트
+router.get('/:id/meta', postController.getPostMetaById);
+
+// 포스트 메타 정보 업데이트 라우트
+router.patch('/:id/meta', postController.updatePostMetaById);
+
 module.exports = router;
