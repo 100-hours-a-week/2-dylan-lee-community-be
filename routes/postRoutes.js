@@ -12,4 +12,7 @@ router.post('/', postController.createPost);
 // ID로 단일 포스트 조회 라우트
 router.get('/:id', postController.getPostById);
 
+// ID로 포스트 수정 라우트
+router.put('/:id', postController.updatePostById);
+
 module.exports = router;
