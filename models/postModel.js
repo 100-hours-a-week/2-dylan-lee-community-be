@@ -122,10 +122,55 @@ const deletePostById = async (id) => {
     }
 };
 
+// 포스트 메타 정보 조회 함수
+const getPostMetaById = async (id) => {
+    try {
+        const postData = await getPostById(id);
+        if (!postData) {
+            return null;
+        }
+        const meta = {
+            views: postData.views,
+            likes: postData.likes,
+            comments_count: postData.comments_count, // TODO: 동적 업데이트
+        };
+        return meta;
+    } catch (error) {
+        console.error('포스트 메타 정보 조회 오류:', error);
+        throw error;
+    }
+};
+
+// 포스트 메타 정보 업데이트 함수
+// TODO: 데이터베이스 업데이트하면 이 함수도 수정해야 함
+const updatePostMetaById = async (id, meta) => {
+    try {
+        const posts = await getPosts();
+        const targetIndex = posts.findIndex(
+            (post) => post.post_id === Number(id)
+        );
+        if (targetIndex === -1) {
+            return null;
+        }
+        const updatedPost = {
+            ...posts[targetIndex],
+            ...meta,
+        };
+        posts[targetIndex] = updatedPost;
+        await savePosts(posts);
+        return updatedPost;
+    } catch (error) {
+        console.error('포스트 메타 정보 업데이트 오류:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     getPostById,
     createPost,
     getPaginatedPosts,
     updatePostById,
     deletePostById,
+    getPostMetaById,
+    updatePostMetaById,
 };
