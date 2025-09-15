@@ -61,7 +61,7 @@
 
 1.  **Test & Build**: 코드를 Checkout하고, ECR에 로그인해 Docker 이미지를 빌드합니다.
 2.  **Push to ECR**: 빌드된 이미지를 AWS ECR(Docker Hub)에 푸시합니다.
-3.  **Deploy to EC2**: AWS EC2 서버에 SSH로 접속하여 ECR에서 최신 Docker 이미지를 Pull 받습니다.
+3.  **Deploy to EC2**: AWS EC2 서버에 SSH로 접속하여 ECR에서 최신 Docker 이미지를 Pull 받습니다. 기존 컨테이너는 유지한 채 새로운 버전의 컨테이너를 실행합니다.
 4.  **Deployment Script**: Nginx가 새로운 컨테이너와의 연결을 수립한 뒤, 기존 컨테이너를 종료하게 하는 스크립트를 실행합니다.
 
 이 파이프라인을 통해 수동 배포의 위험성을 제거하고, 개발자가 코드에만 집중할 수 있는 환경을 구축했습니다.
